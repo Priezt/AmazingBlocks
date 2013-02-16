@@ -58,6 +58,10 @@ public class MainBoard extends Board {
 		newBlock.holding = false;
 	}
 	
+	public void panMoveBy(float px, float py){
+		panMove(centerX + px, centerY + py);
+	}
+	
 	public void panMove(float newCenterX, float newCenterY){
 		centerX = newCenterX;
 		centerY = newCenterY;
@@ -92,6 +96,12 @@ public class MainBoard extends Board {
 	
 	public void drawBackground(ShapeRenderer sr, SpriteBatch batch){
 		drawBackground(sr, batch, false);
+	}
+	
+	public void tick(){
+		 for(Block block : blockList){
+			 block.tick();
+		 }
 	}
 	
 	public void drawBackground(ShapeRenderer sr, SpriteBatch batch, boolean needBorder){
@@ -177,6 +187,14 @@ public class MainBoard extends Board {
 		float trueCenterY = -centerY * zoom + height/ 2;
 		int ry = (int) Math.floor(((y - trueCenterY) / zoom) / RADIUS  + 0.5f);
 		return ry;
+	}
+	
+	public boolean inBoard(float x, float y){
+		if(x >= -columns && x <= columns && y >= -rows && y <= rows){
+			return true;
+		}else{
+			return false;
+		}
 	}
 	
 	public void tapped(float x, float y){

@@ -33,6 +33,8 @@ public class Board {
 
 	public void draw(ShapeRenderer sr, SpriteBatch batch){}
 	
+	public void tick(){};
+	
 	public void tapped(float x, float y){// left bottom: 0, 0
 	}
 	

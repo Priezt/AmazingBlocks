@@ -16,6 +16,10 @@ public class Block {
 	public MainBoard container;
 	public Texture icon;
 	public boolean holding = false;
+	public enum Direction {
+		Up, Down, Left, Right
+	};
+	public Direction direction = Direction.Up;
 	
 	public Block(){
 		init();
@@ -35,6 +39,28 @@ public class Block {
 	
 	public String name(){
 		return this.getClass().getSimpleName();
+	}
+	
+	public void tick(){}
+	
+	public void rotate(){
+		rotate(true);
+	}
+	
+	public void rotate(boolean clockwise){
+		Direction oldDirection = direction;
+		if(clockwise){
+			if(direction == Direction.Up)direction = Direction.Right;
+			else if(direction == Direction.Right)direction = Direction.Down;
+			else if(direction == Direction.Down)direction = Direction.Left;
+			else if(direction == Direction.Left)direction = Direction.Up;
+		}else{
+			if(direction == Direction.Up)direction = Direction.Left;
+			else if(direction == Direction.Right)direction = Direction.Up;
+			else if(direction == Direction.Down)direction = Direction.Right;
+			else if(direction == Direction.Left)direction = Direction.Down;
+		}
+		Tool.log("rotate: " + oldDirection + "->" + direction);
 	}
 	
 	public void moveTo(int newX, int newY){
@@ -85,7 +111,7 @@ public class Block {
 		float screenX = getScreenX();
 		float screenY = getScreenY();
 		if(icon != null){
-			Tool.drawAt(batch, icon, screenX, screenY, Block.RADIUS * container.zoom, Block.RADIUS * container.zoom);
+			Tool.drawAt(batch, icon, screenX, screenY, Block.RADIUS * container.zoom, Block.RADIUS * container.zoom, direction);
 		}else{
 			Tool.textAtCenter(batch, name(), screenX, screenY);
 		}
@@ -93,7 +119,7 @@ public class Block {
 	
 	public void drawAt(SpriteBatch batch, float x, float y){
 		if(icon != null){
-			Tool.drawAt(batch, icon, x, y, Block.RADIUS * container.zoom, Block.RADIUS * container.zoom);
+			Tool.drawAt(batch, icon, x, y, Block.RADIUS * container.zoom, Block.RADIUS * container.zoom, direction);
 		}else{
 			Tool.textAtCenter(batch, name(), x, y);
 		}

@@ -8,6 +8,8 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 public class EditBoard extends Board {
 	public static float CONTROLBOARDHEIGHT = 200f;
+	public static float MOVINGZONE = 50f;
+	public static float EDGEMOVINGSPEED = 5f;
 	
 	public MainBoard mainBoard;
 	public Texture addButton;
@@ -21,6 +23,10 @@ public class EditBoard extends Board {
 	public int originY;
 	public float currentX;
 	public float currentY;
+	public boolean movingLeft = false;
+	public boolean movingRight = false;
+	public boolean movingUp = false;
+	public boolean movingDown = false;
 
 	public EditBoard(float _width, float _height, MainBoard _mainBoard) {
 		super(_width, _height);
@@ -72,6 +78,26 @@ public class EditBoard extends Board {
 		}
 	}
 	
+	public void tick(){
+		if(touchDownType == TouchDownType.BLOCK){
+			if(touchDownBlock != null){
+				if(touchDownBlock.holding){
+					float vx = 0f;
+					float vy = 0f;
+					if(movingLeft)
+						vx -= EDGEMOVINGSPEED;
+					if(movingRight)
+						vx += EDGEMOVINGSPEED;
+					if(movingUp)
+						vy += EDGEMOVINGSPEED;
+					if(movingDown)
+						vy -= EDGEMOVINGSPEED;
+					mainBoard.panMoveBy(vx / mainBoard.zoom, vy / mainBoard.zoom);
+				}
+			}
+		}
+	}
+	
 	public void pan(float x, float y, float deltaX, float deltaY){
 		currentX = x;
 		currentY = y;
@@ -83,7 +109,10 @@ public class EditBoard extends Board {
 				originY = touchDownBlock.y;
 				touchDownBlock.pick();
 			}else{
-				
+				movingLeft = (x <= MOVINGZONE);
+				movingRight = (x >= width - MOVINGZONE);
+				movingUp = (y >= height - MOVINGZONE);
+				movingDown = (y <= MOVINGZONE + CONTROLBOARDHEIGHT);
 			}
 		}
 	}
@@ -97,8 +126,19 @@ public class EditBoard extends Board {
 			if(touchDownBlock.holding){
 				int cx = mainBoard.getX(x);
 				int cy = mainBoard.getY(y);
-				touchDownBlock.put(cx, cy);
+				if(mainBoard.inBoard(cx, cy) && mainBoard.blockAt(cx, cy) == null){
+					touchDownBlock.put(cx, cy);
+				}else{
+					touchDownBlock.put(originX, originY);
+				}
 			}
+		}
+	}
+	
+	public void longPressed(float x, float y){
+		if(touchDownType == TouchDownType.BLOCK){
+			Tool.log("rotate");
+			touchDownBlock.rotate();
 		}
 	}
 }

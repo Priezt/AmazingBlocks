@@ -45,6 +45,7 @@ public class AmazingBlocks implements ApplicationListener{
 	@Override
 	public void create() {
 		Tool.init(this);
+		Tool.log("start");
 		
 		float w = Gdx.graphics.getWidth();
 		float h = Gdx.graphics.getHeight();
@@ -54,6 +55,7 @@ public class AmazingBlocks implements ApplicationListener{
 		mainBoard.addBlock(new Ring(), 0, 0);
 		mainBoard.addBlock(new Vibrator(), 2, 0);
 		mainBoard.addBlock(new OpenWhiteBoard(), 0, 2);
+		mainBoard.addBlock(new Counter(), 2, 2);
 		board = mainBoard;
 		
 		camera = new OrthographicCamera(1, h/w);
@@ -75,6 +77,8 @@ public class AmazingBlocks implements ApplicationListener{
 
 	@Override
 	public void render() {
+		board.tick();
+		
 		Gdx.gl.glClearColor(0.5f, 0.5f, 0.5f, 0.3f);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		
