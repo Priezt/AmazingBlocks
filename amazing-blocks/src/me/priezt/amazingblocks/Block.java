@@ -203,7 +203,23 @@ public class Block {
 	public boolean leftOut(){return false;}
 	public boolean rightOut(){return false;}
 	
-	public Object readRegister(Direction d){
+	public boolean hasIn(Direction d){
+		if(d == Direction.Up)return upIn();
+		else if(d == Direction.Down)return downIn();
+		else if(d == Direction.Left)return leftIn();
+		else if(d == Direction.Right)return rightIn();
+		return false;
+	}
+	
+	public boolean hasOut(Direction d){
+		if(d == Direction.Up)return upOut();
+		else if(d == Direction.Down)return downOut();
+		else if(d == Direction.Left)return leftOut();
+		else if(d == Direction.Right)return rightOut();
+		return false;
+	}
+	
+	public Object read(Direction d){
 		int index = directionToIndex(d);
 		Object result = registers[index];
 		registers[index] = null;
@@ -219,13 +235,18 @@ public class Block {
 		return index;
 	}
 	
-	public boolean registerFilled(Direction d){
+	public boolean ready(Direction d){
 		int index = directionToIndex(d);
 		if(registers[index] != null){
 			return true;
 		}else{
 			return false;
 		}
+	}
+	
+	public boolean write(Direction d, Object obj){
+		if(!hasOut(d))return false;
+		return false;
 	}
 	
 	public boolean active(){
