@@ -125,28 +125,53 @@ public class Block {
 		drawArrows(batch, x, y);
 	}
 	
+	public Direction getArrowRelativeDirection(Direction arrowDirection){
+		int currentDirectionInt = 0;
+		if(direction == Direction.Up)currentDirectionInt = 0;
+		else if(direction == Direction.Right)currentDirectionInt = 1;
+		else if(direction == Direction.Down)currentDirectionInt = 2;
+		else if(direction == Direction.Left)currentDirectionInt = 3;
+		int absoluteDirectionInt = 0;
+		if(arrowDirection == Direction.Up)absoluteDirectionInt = 0;
+		else if(arrowDirection == Direction.Right)absoluteDirectionInt = 1;
+		else if(arrowDirection == Direction.Down)absoluteDirectionInt = 2;
+		else if(arrowDirection == Direction.Left)absoluteDirectionInt = 3;
+		int relativeDirectionInt = (absoluteDirectionInt - currentDirectionInt) % 4;
+		Direction relativeDirection = Direction.Up;
+		if(relativeDirectionInt == 0)relativeDirection = Direction.Up;
+		else if(relativeDirectionInt == 1)relativeDirection = Direction.Right;
+		else if(relativeDirectionInt == 2)relativeDirection = Direction.Down;
+		else if(relativeDirectionInt == 3)relativeDirection = Direction.Left;
+		return relativeDirection;
+	}
+	
+	public Direction getArrowAbsoluteDirection(Direction arrowDirection){
+		int currentDirectionInt = 0;
+		if(direction == Direction.Up)currentDirectionInt = 0;
+		else if(direction == Direction.Right)currentDirectionInt = 1;
+		else if(direction == Direction.Down)currentDirectionInt = 2;
+		else if(direction == Direction.Left)currentDirectionInt = 3;
+		int additionDirectionInt = 0;
+		if(arrowDirection == Direction.Up)additionDirectionInt = 0;
+		else if(arrowDirection == Direction.Right)additionDirectionInt = 1;
+		else if(arrowDirection == Direction.Down)additionDirectionInt = 2;
+		else if(arrowDirection == Direction.Left)additionDirectionInt = 3;
+		int absoluteDirectionInt = (currentDirectionInt + additionDirectionInt) % 4;
+		Direction absoluteDirection = Direction.Up;
+		if(absoluteDirectionInt == 0)absoluteDirection = Direction.Up;
+		else if(absoluteDirectionInt == 1)absoluteDirection = Direction.Right;
+		else if(absoluteDirectionInt == 2)absoluteDirection = Direction.Down;
+		else if(absoluteDirectionInt == 3)absoluteDirection = Direction.Left;
+		return absoluteDirection;
+	}
+	
 	public class ArrowPosition{
 		public float arrowX;
 		public float arrowY;
 		public Direction arrowDirection;
 		
 		public ArrowPosition(Direction relativeDirection, float x, float y, boolean directionIn){
-			int currentDirectionInt = 0;
-			if(direction == Direction.Up)currentDirectionInt = 0;
-			else if(direction == Direction.Right)currentDirectionInt = 1;
-			else if(direction == Direction.Down)currentDirectionInt = 2;
-			else if(direction == Direction.Left)currentDirectionInt = 3;
-			int additionDirectionInt = 0;
-			if(relativeDirection == Direction.Up)additionDirectionInt = 0;
-			else if(relativeDirection == Direction.Right)additionDirectionInt = 1;
-			else if(relativeDirection == Direction.Down)additionDirectionInt = 2;
-			else if(relativeDirection == Direction.Left)additionDirectionInt = 3;
-			int absoluteDirectionInt = (currentDirectionInt + additionDirectionInt) % 4;
-			Direction absoluteDirection = Direction.Up;
-			if(absoluteDirectionInt == 0)absoluteDirection = Direction.Up;
-			else if(absoluteDirectionInt == 1)absoluteDirection = Direction.Right;
-			else if(absoluteDirectionInt == 2)absoluteDirection = Direction.Down;
-			else if(absoluteDirectionInt == 3)absoluteDirection = Direction.Left;
+			Direction absoluteDirection = getArrowAbsoluteDirection(relativeDirection);
 			if(absoluteDirection == Direction.Up){
 				arrowX = x;
 				arrowY = y + MainBoard.RADIUS * container.zoom / 2 - ARROWRADIUS * container.zoom / 2;
@@ -225,8 +250,9 @@ public class Block {
 		registers[index] = null;
 		return result;
 	}
+
 	
-	public int directionToIndex(Direction d){
+	public static int directionToIndex(Direction d){
 		int index = 0;
 		if(d == Direction.Up)index = 0;
 		else if(d == Direction.Down)index = 1;
@@ -246,7 +272,40 @@ public class Block {
 	
 	public boolean write(Direction d, Object obj){
 		if(!hasOut(d))return false;
-		return false;
+		Direction targetDirection = getArrowAbsoluteDirection(d);
+		Block targetBlock = getNeighbourBlock(targetDirection);
+		if(targetBlock == null){
+			return false;
+		}
+		Direction targetArrowDirection = targetBlock.getArrowRelativeDirection(Block.getOppositeDirection(targetDirection));
+		if(!targetBlock.hasIn(targetArrowDirection)){
+			return false;
+		}
+		int index = directionToIndex(targetArrowDirection);
+		if(targetBlock.registers[index] != null){
+			return false;
+		}
+		targetBlock.registers[index] = obj;
+		Tool.log("write: " + name() + " -> " + targetBlock.name());
+		return true;
+	}
+	
+	public static Direction getOppositeDirection(Direction d){
+		if(d == Direction.Up)return Direction.Down;
+		else if(d == Direction.Down)return Direction.Up;
+		else if(d == Direction.Left)return Direction.Right;
+		else if(d == Direction.Right)return Direction.Left;
+		return null;
+	}
+	
+	public Block getNeighbourBlock(Direction d){
+		int neighbourX = x;
+		int neighbourY = y;
+		if(d == Direction.Up)y++;
+		else if(d == Direction.Down)y--;
+		else if(d == Direction.Left)x--;
+		else if(d == Direction.Right)x++;
+		return container.blockAt(neighbourX, neighbourY);
 	}
 	
 	public boolean active(){
