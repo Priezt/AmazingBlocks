@@ -136,7 +136,7 @@ public class Block {
 		else if(arrowDirection == Direction.Right)absoluteDirectionInt = 1;
 		else if(arrowDirection == Direction.Down)absoluteDirectionInt = 2;
 		else if(arrowDirection == Direction.Left)absoluteDirectionInt = 3;
-		int relativeDirectionInt = (absoluteDirectionInt - currentDirectionInt) % 4;
+		int relativeDirectionInt = (absoluteDirectionInt - currentDirectionInt + 4) % 4;
 		Direction relativeDirection = Direction.Up;
 		if(relativeDirectionInt == 0)relativeDirection = Direction.Up;
 		else if(relativeDirectionInt == 1)relativeDirection = Direction.Right;
@@ -215,7 +215,7 @@ public class Block {
 		if(arrow == null){
 			arrow = Tool.loadPicture("arrow.png");
 		}
-		Tool.drawAt(batch, arrow, x, y, Block.ARROWRADIUS * container.zoom, Block.ARROWRADIUS * container.zoom, d);
+		Tool.drawAt(batch, arrow, x, y, Block.ARROWRADIUS * container.zoom, Block.ARROWRADIUS * container.zoom, d, 0.5f);
 	}
 	
 	public boolean upIn(){return false;}
@@ -286,7 +286,7 @@ public class Block {
 			return false;
 		}
 		targetBlock.registers[index] = obj;
-		Tool.log("write: " + name() + " -> " + targetBlock.name());
+		Tool.log("write: " + name() + "(" + d + ") -> " + targetBlock.name() + "(" + targetArrowDirection + ")");
 		return true;
 	}
 	
@@ -301,10 +301,10 @@ public class Block {
 	public Block getNeighbourBlock(Direction d){
 		int neighbourX = x;
 		int neighbourY = y;
-		if(d == Direction.Up)y++;
-		else if(d == Direction.Down)y--;
-		else if(d == Direction.Left)x--;
-		else if(d == Direction.Right)x++;
+		if(d == Direction.Up)neighbourY++;
+		else if(d == Direction.Down)neighbourY--;
+		else if(d == Direction.Left)neighbourX--;
+		else if(d == Direction.Right)neighbourX++;
 		return container.blockAt(neighbourX, neighbourY);
 	}
 	

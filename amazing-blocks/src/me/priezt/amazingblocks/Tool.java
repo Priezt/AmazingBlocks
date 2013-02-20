@@ -73,6 +73,10 @@ public class Tool {
 	}
 	
 	public static void drawAt(SpriteBatch batch, Texture texture, float x, float y, float width, float height, Block.Direction direction){
+		drawAt(batch, texture, x, y, width, height, direction, 1.0f);
+	}	
+	
+	public static void drawAt(SpriteBatch batch, Texture texture, float x, float y, float width, float height, Block.Direction direction, float alpha){
 		TextureRegion region = new TextureRegion(texture, 0, 0, texture.getWidth(), texture.getHeight());
 		Sprite sprite = new Sprite(region);
 		sprite.setOrigin(sprite.getWidth()/2, sprite.getHeight()/2);
@@ -86,7 +90,11 @@ public class Tool {
 		}
 		sprite.setSize(width, height);
 		sprite.setPosition(x - sprite.getWidth() / 2, y - sprite.getHeight() / 2);
-		sprite.draw(batch);
+		if(alpha == 1.0f){
+			sprite.draw(batch);
+		}else{
+			sprite.draw(batch, alpha);
+		}
 	}
 	
 	public static Texture loadPicture(String imgFilename){

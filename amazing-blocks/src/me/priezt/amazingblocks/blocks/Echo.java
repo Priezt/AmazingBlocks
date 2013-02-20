@@ -17,7 +17,7 @@ public class Echo extends Block {
 	}
 	
 	public void tick(){
-		Tool.log("echo tick");
+//		Tool.log("echo tick");
 		text = read(Direction.Up).toString();
 	}
 	

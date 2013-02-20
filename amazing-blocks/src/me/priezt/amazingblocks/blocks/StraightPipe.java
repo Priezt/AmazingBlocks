@@ -23,4 +23,10 @@ public class StraightPipe extends Block {
 	
 	public boolean upIn(){return true;}
 	public boolean downOut(){return true;}
+	
+	public boolean active(){return ready(Direction.Up);}
+	
+	public void tick(){
+		write(Direction.Down, read(Direction.Up));
+	}
 }
