@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 public class EditBoard extends Board {
-	public static float CONTROLBOARDHEIGHT = 200f;
 	public static float MOVINGZONE = 50f;
 	public static float EDGEMOVINGSPEED = 5f;
 	
@@ -27,12 +26,14 @@ public class EditBoard extends Board {
 	public boolean movingRight = false;
 	public boolean movingUp = false;
 	public boolean movingDown = false;
+	public ControlPanel controlPanel;
 
 	public EditBoard(float _width, float _height, MainBoard _mainBoard) {
 		super(_width, _height);
 		this.mainBoard = _mainBoard;
 		addButton = Tool.loadPicture("add.png");
 		controlBoard = Tool.loadPicture("controlBoard.png");
+		controlPanel = new AddPanel();
 	}
 
 	public void draw(ShapeRenderer sr, SpriteBatch batch){
@@ -40,6 +41,7 @@ public class EditBoard extends Board {
 		mainBoard.drawForeground(sr, batch);
 		this.drawHoldingBlock(sr, batch);
 		this.drawControlBoard(sr, batch);
+		controlPanel.draw(batch);
 	}
 	
 	public void drawHoldingBlock(ShapeRenderer sr, SpriteBatch batch){
@@ -48,8 +50,8 @@ public class EditBoard extends Board {
 				if(touchDownBlock.holding){
 					float dx = currentX;
 					float dy = currentY;
-					if(dy <= CONTROLBOARDHEIGHT){
-						dy = CONTROLBOARDHEIGHT;
+					if(dy <= ControlPanel.PANELHEIGHT){
+						dy = ControlPanel.PANELHEIGHT;
 					}
 					touchDownBlock.drawAt(batch, dx, dy);
 				}
@@ -58,12 +60,12 @@ public class EditBoard extends Board {
 	}
 	
 	public void drawControlBoard(ShapeRenderer sr, SpriteBatch batch){
-		Tool.drawAt(batch, controlBoard, Tool.root.screenWidth / 2, CONTROLBOARDHEIGHT / 2, Tool.root.screenWidth, CONTROLBOARDHEIGHT);
+		Tool.drawAt(batch, controlBoard, Tool.root.screenWidth / 2, ControlPanel.PANELHEIGHT / 2, Tool.root.screenWidth, ControlPanel.PANELHEIGHT);
 	}
 	
 	public void touchDown(float x, float y){
 		mainBoard.touchDown(x, y);
-		if(y <= CONTROLBOARDHEIGHT){
+		if(y <= ControlPanel.PANELHEIGHT){
 			touchDownType = TouchDownType.CONTROL;
 		}else{
 			int cx = mainBoard.getX(x);
@@ -112,8 +114,10 @@ public class EditBoard extends Board {
 				movingLeft = (x <= MOVINGZONE);
 				movingRight = (x >= width - MOVINGZONE);
 				movingUp = (y >= height - MOVINGZONE);
-				movingDown = (y <= MOVINGZONE + CONTROLBOARDHEIGHT);
+				movingDown = (y <= MOVINGZONE + ControlPanel.PANELHEIGHT);
 			}
+		}else if(touchDownType == TouchDownType.CONTROL){
+			controlPanel.pan(x, y, deltaX, deltaY);
 		}
 	}
 	

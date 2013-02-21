@@ -60,6 +60,10 @@ public class AmazingBlocks implements ApplicationListener{
 		mainBoard.addBlock(new StraightPipe(), 1, 0);
 		mainBoard.addBlock(new HelloWorld(), 3, 0);
 		mainBoard.addBlock(new Echo(), 3, 1);
+		mainBoard.addBlock(new LeftPipe(), 2, -1);
+		mainBoard.addBlock(new RightPipe(), 2, -2);
+		mainBoard.addBlock(new Click(), 3, -2);
+		mainBoard.addBlock(Block.newBlock("Click"), 3, -3);
 		board = mainBoard;
 		
 		camera = new OrthographicCamera(1, h/w);

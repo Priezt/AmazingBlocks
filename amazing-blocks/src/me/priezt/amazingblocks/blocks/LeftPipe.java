@@ -1,24 +1,18 @@
 package me.priezt.amazingblocks.blocks;
 
-import com.badlogic.gdx.Gdx;
-
 import me.priezt.amazingblocks.Block;
 import me.priezt.amazingblocks.Block.Direction;
 
-public class Vibrator extends Block {
+public class LeftPipe extends Pipe {
 	public void init(){
-		loadIcon("vibrate.png");
+		this.loadIcon("pipe2left.png");
 	}
 	
 	public boolean upIn(){return true;}
-	
-	public void tapped(){
-		Gdx.input.vibrate(200);
-	}
+	public boolean leftOut(){return true;}
 	
 	public void tick(){
 		if(!ready(Direction.Up))return;
-		read(Direction.Up);
-		tapped();
+		write(Direction.Left, read(Direction.Up));
 	}
 }

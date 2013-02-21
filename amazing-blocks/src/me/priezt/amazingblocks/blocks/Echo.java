@@ -12,12 +12,8 @@ public class Echo extends Block {
 	
 	public boolean upIn(){return true;}
 	
-	public boolean active(){
-		return ready(Direction.Up);
-	}
-	
 	public void tick(){
-//		Tool.log("echo tick");
+		if(!ready(Direction.Up))return;
 		text = read(Direction.Up).toString();
 	}
 	

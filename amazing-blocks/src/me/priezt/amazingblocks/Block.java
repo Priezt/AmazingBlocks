@@ -24,6 +24,18 @@ public class Block {
 	public Direction direction = Direction.Up;
 	public Object[] registers = new Object[4];
 	
+	public static Block newBlock(String blockName){
+		try{
+			Class blockClass = Class.forName("me.priezt.amazingblocks.blocks." + blockName);
+			Block newBlock = (Block)blockClass.newInstance();
+			return newBlock;
+		}catch(Exception e){
+			Tool.log("cannot create block: " + blockName);
+			Tool.log("Error: " + e.getMessage());
+			return null;
+		}
+	}
+	
 	public Block(){
 		init();
 	}
@@ -114,6 +126,14 @@ public class Block {
 		float screenX = getScreenX();
 		float screenY = getScreenY();
 		drawAt(batch, screenX, screenY);
+	}
+	
+	public void drawAtWithoutArrow(SpriteBatch batch, float x, float y, float width, float height){
+		if(icon != null){
+			Tool.drawAt(batch, icon, x, y, width, height);
+		}else{
+			Tool.textAtCenter(batch, name(), x, y);
+		}
 	}
 	
 	public void drawAt(SpriteBatch batch, float x, float y){
@@ -286,7 +306,7 @@ public class Block {
 			return false;
 		}
 		targetBlock.registers[index] = obj;
-		Tool.log("write: " + name() + "(" + d + ") -> " + targetBlock.name() + "(" + targetArrowDirection + ")");
+//		Tool.log("write: " + name() + "(" + d + ") -> " + targetBlock.name() + "(" + targetArrowDirection + ")");
 		return true;
 	}
 	
@@ -308,7 +328,4 @@ public class Block {
 		return container.blockAt(neighbourX, neighbourY);
 	}
 	
-	public boolean active(){
-		return false;
-	}
 }

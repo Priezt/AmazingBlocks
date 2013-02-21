@@ -13,8 +13,6 @@ public class HelloWorld extends Block {
 		this.loadIcon("helloworld.png");
 	}
 	
-	public boolean active(){return true;}
-
 	public void tick(){
 		long currentTimeStamp = (new Date()).getTime();
 		int currentMod = (int)(currentTimeStamp / 1000) % 2;

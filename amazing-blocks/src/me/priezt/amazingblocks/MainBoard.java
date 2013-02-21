@@ -100,9 +100,7 @@ public class MainBoard extends Board {
 	
 	public void tick(){
 		 for(Block block : blockList){
-			 if(block.active()){
-				 block.tick();
-			 }
+			 block.tick();
 		 }
 	}
 	
