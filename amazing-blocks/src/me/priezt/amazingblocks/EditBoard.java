@@ -1,5 +1,6 @@
 package me.priezt.amazingblocks;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -33,7 +34,7 @@ public class EditBoard extends Board {
 		this.mainBoard = _mainBoard;
 		addButton = Tool.loadPicture("add.png");
 		controlBoard = Tool.loadPicture("controlBoard.png");
-		controlPanel = new AddPanel();
+		setPanel(new NormalPanel());
 	}
 
 	public void draw(ShapeRenderer sr, SpriteBatch batch){
@@ -67,6 +68,7 @@ public class EditBoard extends Board {
 		mainBoard.touchDown(x, y);
 		if(y <= ControlPanel.PANELHEIGHT){
 			touchDownType = TouchDownType.CONTROL;
+			controlPanel.touchDown(x, y);
 		}else{
 			int cx = mainBoard.getX(x);
 			int cy = mainBoard.getY(y);
@@ -136,6 +138,8 @@ public class EditBoard extends Board {
 					touchDownBlock.put(originX, originY);
 				}
 			}
+		}else if(touchDownType == TouchDownType.CONTROL){
+			controlPanel.touchUp(x, y);
 		}
 	}
 	
@@ -143,6 +147,24 @@ public class EditBoard extends Board {
 		if(touchDownType == TouchDownType.BLOCK){
 			Tool.log("rotate");
 			touchDownBlock.rotate();
+		}else if(touchDownType == TouchDownType.EMPTY){
+			Gdx.input.vibrate(30);
+			setPanel(new AddPanel());
+		}else if(touchDownType == TouchDownType.CONTROL){
+			controlPanel.longPressed(x, y);
 		}
+	}
+	
+	public void backPressed(){
+		if(controlPanel.getClass().equals(NormalPanel.class)){
+			super.backPressed();
+		}else{
+			setPanel(new NormalPanel());
+		}
+	}
+	
+	public void setPanel(ControlPanel newPanel){
+		newPanel.editBoard = this;
+		controlPanel = newPanel;
 	}
 }

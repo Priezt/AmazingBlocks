@@ -58,6 +58,12 @@ public class MainBoard extends Board {
 		newBlock.holding = false;
 	}
 	
+	public void addBlockWithoutPut(Block newBlock){
+		blockList.add(newBlock);
+		newBlock.container = this;
+		newBlock.holding = true;
+	}
+	
 	public void panMoveBy(float px, float py){
 		panMove(centerX + px, centerY + py);
 	}
