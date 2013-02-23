@@ -106,4 +106,8 @@ public class Tool {
 		textureCache.put(imgFilename, texture);
 		return texture;
 	}
+	
+	public static void vibrate(){
+		Gdx.input.vibrate(30);
+	}
 }

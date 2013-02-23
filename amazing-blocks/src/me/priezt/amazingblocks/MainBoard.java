@@ -40,6 +40,16 @@ public class MainBoard extends Board {
 		return x + "," + y;
 	}
 	
+	public float screenXtoBoardX(float x){
+//		Tool.log("x:" + x + ", centerX:" + centerX);
+		return (x - this.width- centerX) / zoom + (x - this.width / 2) / zoom;
+	}
+	
+	public float screenYtoBoardY(float y){
+//		Tool.log("y:" + y + ", centerY:" + centerY);
+		return centerY + (y - this.height / 2) / zoom;
+	}
+	
 	public Block blockAt(int x, int y){
 		String hashKey = xyToHashKey(x, y);
 		if(blockHash.containsKey(hashKey)){
@@ -47,6 +57,11 @@ public class MainBoard extends Board {
 		}else{
 			return null;
 		}
+	}
+	
+	public void remove(Block b){
+		blockList.remove(b);
+		blockHash.remove(b);
 	}
 	
 	public void addBlock(Block newBlock, int x, int y){

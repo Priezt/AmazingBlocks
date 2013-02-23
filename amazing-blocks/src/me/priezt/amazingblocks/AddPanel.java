@@ -25,6 +25,7 @@ public class AddPanel extends ControlPanel {
 			"Click",
 			"LeftPipe",
 			"RightPipe",
+			"PipeOneToThree",
 			"HelloWorld",
 			"Echo",
 			"Counter",
@@ -40,7 +41,7 @@ public class AddPanel extends ControlPanel {
 	public void draw(SpriteBatch batch){
 		int minIndex = getIndexByX(BLOCKDISTANCE / 2);
 		int maxIndex = getIndexByX(Tool.root.screenWidth - BLOCKDISTANCE / 2);
-		Tool.log(minIndex + "," + maxIndex);
+		//Tool.log(minIndex + "," + maxIndex);
 		for(int i = minIndex; i <= maxIndex; i++){
 			Block b = blocks.get(i);
 			float screenX = getXByIndex(i);
@@ -81,10 +82,17 @@ public class AddPanel extends ControlPanel {
 		float centerX = getXByIndex(index);
 		if(Math.abs(centerX - x) <= BLOCKRADIUS && Math.abs(y - ControlPanel.PANELHEIGHT / 2) <= BLOCKRADIUS){
 			mode = Mode.Create;
-			selectedBlock = blocks.get(index);
+			selectedBlock = Block.newBlock((blocks.get(index).getClass().getSimpleName()));
+			editBoard.currentX = editBoard.mainBoard.screenXtoBoardX(x);
+			editBoard.currentY = editBoard.mainBoard.screenYtoBoardY(y);
+//			Tool.log("x,y: " + x + "," + y);
+//			Tool.log("currentX,currentY: " + editBoard.currentX + "," + editBoard.currentY);
 			editBoard.mainBoard.addBlockWithoutPut(selectedBlock);
 			editBoard.touchDownType = EditBoard.TouchDownType.BLOCK;
 			editBoard.touchDownBlock = selectedBlock;
+			editBoard.hasOrigin = false;
+			editBoard.borderMoveEnable = false;
+			Tool.vibrate();
 		}else{
 			mode = Mode.Normal;
 			selectedBlock = null;

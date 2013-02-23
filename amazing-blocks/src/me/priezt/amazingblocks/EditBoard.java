@@ -19,6 +19,7 @@ public class EditBoard extends Board {
 	};
 	public TouchDownType touchDownType;
 	public Block touchDownBlock;
+	public boolean hasOrigin = false;
 	public int originX;
 	public int originY;
 	public float currentX;
@@ -28,6 +29,7 @@ public class EditBoard extends Board {
 	public boolean movingUp = false;
 	public boolean movingDown = false;
 	public ControlPanel controlPanel;
+	public boolean borderMoveEnable = false;
 
 	public EditBoard(float _width, float _height, MainBoard _mainBoard) {
 		super(_width, _height);
@@ -109,6 +111,8 @@ public class EditBoard extends Board {
 			mainBoard.panMove(mainBoard.centerX - deltaX / mainBoard.zoom, mainBoard.centerY - deltaY / mainBoard.zoom);
 		}else if(touchDownType == TouchDownType.BLOCK){
 			if(!touchDownBlock.holding){
+				borderMoveEnable = true;
+				hasOrigin = true;
 				originX = touchDownBlock.x;
 				originY = touchDownBlock.y;
 				touchDownBlock.pick();
@@ -117,6 +121,16 @@ public class EditBoard extends Board {
 				movingRight = (x >= width - MOVINGZONE);
 				movingUp = (y >= height - MOVINGZONE);
 				movingDown = (y <= MOVINGZONE + ControlPanel.PANELHEIGHT);
+				if(!borderMoveEnable){
+					if(!(movingLeft || movingRight || movingUp || movingDown)){
+						borderMoveEnable = true;
+					}else{
+						movingLeft = false;
+						movingRight = false;
+						movingUp = false;
+						movingDown = false;
+					}
+				}
 			}
 		}else if(touchDownType == TouchDownType.CONTROL){
 			controlPanel.pan(x, y, deltaX, deltaY);
@@ -135,7 +149,12 @@ public class EditBoard extends Board {
 				if(mainBoard.inBoard(cx, cy) && mainBoard.blockAt(cx, cy) == null){
 					touchDownBlock.put(cx, cy);
 				}else{
-					touchDownBlock.put(originX, originY);
+					if(hasOrigin){
+						touchDownBlock.put(originX, originY);
+					}else{
+						touchDownBlock = null;
+						mainBoard.remove(touchDownBlock);
+					}
 				}
 			}
 		}else if(touchDownType == TouchDownType.CONTROL){
@@ -148,7 +167,7 @@ public class EditBoard extends Board {
 			Tool.log("rotate");
 			touchDownBlock.rotate();
 		}else if(touchDownType == TouchDownType.EMPTY){
-			Gdx.input.vibrate(30);
+			Tool.vibrate();
 			setPanel(new AddPanel());
 		}else if(touchDownType == TouchDownType.CONTROL){
 			controlPanel.longPressed(x, y);
