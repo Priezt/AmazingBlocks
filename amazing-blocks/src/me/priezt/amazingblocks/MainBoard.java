@@ -25,6 +25,27 @@ public class MainBoard extends Board {
 	public float startZoomingZoom;
 	public Texture brick;
 	public Texture brickWithBorder;
+	public Texture brickHighlight;
+	public boolean blockSelected = false;
+	public int selectedX = 0;
+	public int selectedY = 0;
+	
+	public void selectBlockByScreenXY(float x, float y){
+		int indexX = this.getX(x);
+		int indexY = this.getY(y);
+		if(this.inBoard(indexX, indexY))return;
+		selectBlock(indexX, indexY);
+	}
+	
+	public void selectBlock(int x, int y){
+		selectedX = x;
+		selectedY = y;
+		blockSelected = true;
+	}
+	
+	public void unselectBlock(){
+		blockSelected = false;
+	}
 	
 	public MainBoard(float w, float h){
 		super(w, h);
@@ -34,6 +55,7 @@ public class MainBoard extends Board {
 		blockList = new ArrayList<Block>();
 		brick = Tool.loadPicture("brick.png");
 		brickWithBorder = Tool.loadPicture("brickWithBorder.png");
+		brickHighlight = Tool.loadPicture("brickHighlight.png");
 	}
 	
 	public String xyToHashKey(int x, int y){
@@ -60,8 +82,11 @@ public class MainBoard extends Board {
 	}
 	
 	public void remove(Block b){
+//		Tool.log("try to remove block");
+//		Tool.log("block in list: " + blockList.contains(b));
+//		Tool.log("block in hash: " + blockHash.containsValue(b));
 		blockList.remove(b);
-		blockHash.remove(b);
+		blockHash.remove(xyToHashKey(b.x, b.y));
 	}
 	
 	public void addBlock(Block newBlock, int x, int y){
@@ -185,7 +210,11 @@ public class MainBoard extends Board {
 		float absoluteY = trueCenterY + y * RADIUS * zoom;
 //		sr.rect(absoluteX - RADIUS * DRAWRADIUSRATIO * zoom / 2, absoluteY - RADIUS * DRAWRADIUSRATIO * zoom / 2, RADIUS * DRAWRADIUSRATIO * zoom, RADIUS * DRAWRADIUSRATIO * zoom);
 		if(needBorder){
-			Tool.drawAt(batch, brickWithBorder, absoluteX, absoluteY, RADIUS * DRAWRADIUSRATIO * zoom, RADIUS * DRAWRADIUSRATIO * zoom);
+			if(blockSelected && x == selectedX && y == selectedY){
+				Tool.drawAt(batch, brickHighlight, absoluteX, absoluteY, RADIUS * DRAWRADIUSRATIO * zoom, RADIUS * DRAWRADIUSRATIO * zoom);
+			}else{
+				Tool.drawAt(batch, brickWithBorder, absoluteX, absoluteY, RADIUS * DRAWRADIUSRATIO * zoom, RADIUS * DRAWRADIUSRATIO * zoom);
+			}
 		}else{
 			Tool.drawAt(batch, brick, absoluteX, absoluteY, RADIUS * DRAWRADIUSRATIO * zoom, RADIUS * DRAWRADIUSRATIO * zoom);
 		}
@@ -210,7 +239,7 @@ public class MainBoard extends Board {
 		return ry;
 	}
 	
-	public boolean inBoard(float x, float y){
+	public boolean inBoard(int x, int y){
 		if(x >= -columns && x <= columns && y >= -rows && y <= rows){
 			return true;
 		}else{

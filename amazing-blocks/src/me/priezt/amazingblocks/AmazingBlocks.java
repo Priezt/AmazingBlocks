@@ -61,7 +61,9 @@ public class AmazingBlocks implements ApplicationListener{
 
 		InputMultiplexer multiplexer = new InputMultiplexer();
 		multiplexer.addProcessor(new MyInputProcessor());
-		multiplexer.addProcessor(new GestureDetector(new MyGestureListener()));
+		GestureDetector gd = new GestureDetector(new MyGestureListener());
+//		gd.setLongPressSeconds(1);
+		multiplexer.addProcessor(gd);
 		Gdx.input.setInputProcessor(multiplexer);
 		Gdx.input.setCatchBackKey(true);
 	}

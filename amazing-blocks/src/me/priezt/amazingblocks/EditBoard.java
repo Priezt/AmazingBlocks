@@ -77,6 +77,8 @@ public class EditBoard extends Board {
 			Block b = mainBoard.blockAt(cx, cy);
 			if(b == null){
 				touchDownType = TouchDownType.EMPTY;
+			}else if(controlPanel.getClass() == ModifyPanel.class){
+				touchDownType = TouchDownType.EMPTY;
 			}else{
 				touchDownType = TouchDownType.BLOCK;
 				touchDownBlock = b;
@@ -164,8 +166,11 @@ public class EditBoard extends Board {
 	
 	public void longPressed(float x, float y){
 		if(touchDownType == TouchDownType.BLOCK){
-			Tool.log("rotate");
-			touchDownBlock.rotate();
+			Tool.vibrate();
+			mainBoard.selectBlock(touchDownBlock.x, touchDownBlock.y);
+			ModifyPanel mp = new ModifyPanel();
+			mp.modifyBlock = touchDownBlock;
+			setPanel(mp);
 		}else if(touchDownType == TouchDownType.EMPTY){
 			Tool.vibrate();
 			setPanel(new AddPanel());
@@ -175,6 +180,7 @@ public class EditBoard extends Board {
 	}
 	
 	public void backPressed(){
+		mainBoard.unselectBlock();
 		if(controlPanel.getClass().equals(NormalPanel.class)){
 			super.backPressed();
 		}else{
@@ -182,7 +188,15 @@ public class EditBoard extends Board {
 		}
 	}
 	
+	public void tapped(float x, float y){
+		if(touchDownType == TouchDownType.CONTROL){
+			controlPanel.tapped(x, y);
+		}
+	}
+	
 	public void setPanel(ControlPanel newPanel){
+		Tool.log("setPanel");
+		Tool.log("switch control panel to: " + newPanel.getClass().getSimpleName());
 		newPanel.editBoard = this;
 		controlPanel = newPanel;
 	}

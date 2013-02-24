@@ -22,4 +22,6 @@ public class ControlPanel {
 	public void pan(float x, float y, float deltaX, float deltaY){}
 	
 	public void longPressed(float x, float y){}
+	
+	public void tapped(float x, float y){};
 }
