@@ -1,3 +1,2 @@
-bug: modify mode, long press block still works
-feature: modify mode change modify-block by tap
+bug: one block, linked from multi-place
 

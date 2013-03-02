@@ -13,6 +13,7 @@ public class Block {
 	public static float ARROWRADIUS = 30f;
 	public static Texture arrow;
 	
+	public boolean hasPosition = false;
 	public int x;
 	public int y;
 	public MainBoard container;
@@ -78,6 +79,7 @@ public class Block {
 		Tool.log("rotate: " + oldDirection + "->" + direction);
 	}
 	
+	/* DEPRECATED, USE PICK and PUT INSTEAD 
 	public void moveTo(int newX, int newY){
 		if(x == newX && y == newY){
 			return;
@@ -93,11 +95,14 @@ public class Block {
 		y = newY;
 		holding = false;
 	}
+	*/
 	
 	public void pick(){
 		int oldX = x;
 		int oldY = y;
-		container.blockHash.remove(container.xyToHashKey(oldX, oldY));
+		if(hasPosition){
+			container.blockHash.remove(container.xyToHashKey(oldX, oldY));
+		}
 		holding = true;
 	}
 	
@@ -106,6 +111,7 @@ public class Block {
 		x = newX;
 		y = newY;
 		holding = false;
+		hasPosition = true;
 	}
 	
 	public void tapped(){

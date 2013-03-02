@@ -49,7 +49,11 @@ public class ModifyPanel extends ControlPanel {
 		buttons.add(new Button("rotateRight", "rotateRight.png", 0.75f, 0.5f));
 	}
 	
-	public void tapped(float x, float y){
+	public void tappedBlock(float x, float y, Block block){
+		this.selectModifyBlock(block);
+	};
+	
+	public void tappedControl(float x, float y){
 		for(Button b : buttons){
 			if(b.pointIn(x, y)){
 				buttonAction(b);
@@ -57,14 +61,14 @@ public class ModifyPanel extends ControlPanel {
 		}
 	}
 	
+	public void tappedEmpty(float x, float y, int gridX, int gridY){
+		quit();
+	}
+	
 	public void buttonAction(Button b){
 		if(b.name.equals("delete")){
-//			Tool.log("remove block");
-//			Tool.log(modifyBlock.toString());
 			editBoard.mainBoard.remove(modifyBlock);
-//			Tool.log("after remove");
-			editBoard.mainBoard.unselectBlock();
-			editBoard.setPanel(new NormalPanel());
+			quit();
 		}else if(b.name.equals("rotateLeft")){
 			modifyBlock.rotate(false);
 		}else if(b.name.equals("rotateRight")){
@@ -76,5 +80,19 @@ public class ModifyPanel extends ControlPanel {
 		for(Button b : buttons){
 			b.draw(batch);
 		}
+	}
+	
+	public void selectModifyBlock(Block b){
+		editBoard.mainBoard.selectBlock(b);
+		this.modifyBlock = b;
+	}
+	
+	public void quit(){
+		editBoard.mainBoard.unselectBlock();
+		editBoard.setPanel(new AddPanel());
+	}
+	
+	public void backPressed(){
+		quit();
 	}
 }

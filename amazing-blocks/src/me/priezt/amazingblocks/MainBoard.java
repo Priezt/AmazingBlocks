@@ -43,6 +43,12 @@ public class MainBoard extends Board {
 		blockSelected = true;
 	}
 	
+	public void selectBlock(Block b){
+		selectedX = b.x;
+		selectedY = b.y;
+		blockSelected = true;
+	}
+	
 	public void unselectBlock(){
 		blockSelected = false;
 	}
@@ -86,7 +92,10 @@ public class MainBoard extends Board {
 //		Tool.log("block in list: " + blockList.contains(b));
 //		Tool.log("block in hash: " + blockHash.containsValue(b));
 		blockList.remove(b);
-		blockHash.remove(xyToHashKey(b.x, b.y));
+		if(b.hasPosition){
+			blockHash.remove(xyToHashKey(b.x, b.y));
+		}
+		b.holding = false;
 	}
 	
 	public void addBlock(Block newBlock, int x, int y){
@@ -96,12 +105,14 @@ public class MainBoard extends Board {
 		newBlock.container = this;
 		blockHash.put(xyToHashKey(x, y), newBlock);
 		newBlock.holding = false;
+		newBlock.hasPosition = true;
 	}
 	
 	public void addBlockWithoutPut(Block newBlock){
 		blockList.add(newBlock);
 		newBlock.container = this;
 		newBlock.holding = true;
+		newBlock.hasPosition = false;
 	}
 	
 	public void panMoveBy(float px, float py){

@@ -19,7 +19,6 @@ public class EditBoard extends Board {
 	};
 	public TouchDownType touchDownType;
 	public Block touchDownBlock;
-	public boolean hasOrigin = false;
 	public int originX;
 	public int originY;
 	public float currentX;
@@ -36,7 +35,7 @@ public class EditBoard extends Board {
 		this.mainBoard = _mainBoard;
 		addButton = Tool.loadPicture("add.png");
 		controlBoard = Tool.loadPicture("controlBoard.png");
-		setPanel(new NormalPanel());
+		setPanel(new AddPanel());
 	}
 
 	public void draw(ShapeRenderer sr, SpriteBatch batch){
@@ -48,16 +47,14 @@ public class EditBoard extends Board {
 	}
 	
 	public void drawHoldingBlock(ShapeRenderer sr, SpriteBatch batch){
-		if(touchDownType == TouchDownType.BLOCK){
-			if(touchDownBlock != null){
-				if(touchDownBlock.holding){
-					float dx = currentX;
-					float dy = currentY;
-					if(dy <= ControlPanel.PANELHEIGHT){
-						dy = ControlPanel.PANELHEIGHT;
-					}
-					touchDownBlock.drawAt(batch, dx, dy);
+		if(touchDownBlock != null){
+			if(touchDownBlock.holding){
+				float dx = currentX;
+				float dy = currentY;
+				if(dy <= ControlPanel.PANELHEIGHT){
+					dy = ControlPanel.PANELHEIGHT;
 				}
+				touchDownBlock.drawAt(batch, dx, dy);
 			}
 		}
 	}
@@ -68,40 +65,68 @@ public class EditBoard extends Board {
 	
 	public void touchDown(float x, float y){
 		mainBoard.touchDown(x, y);
+		touchDownBlock = null;
 		if(y <= ControlPanel.PANELHEIGHT){
 			touchDownType = TouchDownType.CONTROL;
-			controlPanel.touchDown(x, y);
+			controlPanel.touchDownInControl(x, y);
+		}else{
+			int cx = mainBoard.getX(x);
+			int cy = mainBoard.getY(y);
+			originX = cx;
+			originY = cy;
+			Block b = mainBoard.blockAt(cx, cy);
+			if(b == null){
+				touchDownType = TouchDownType.EMPTY;
+				controlPanel.touchDownInEmpty(x, y, cx, cy);
+			}else{
+				touchDownType = TouchDownType.BLOCK;
+				touchDownBlock = b;
+				controlPanel.touchDownInBlock(x, y, b);
+			}
+		}
+	}
+	
+	public void touchUp(float x, float y) {
+		if(y <= ControlPanel.PANELHEIGHT){
+			if(touchDownType == TouchDownType.CONTROL)controlPanel.touchUpFromControlToControl(x, y);
+			else if(touchDownType == TouchDownType.EMPTY)controlPanel.touchUpFromEmptyToControl(x, y);
+			else if(touchDownType == TouchDownType.BLOCK)controlPanel.touchUpFromBlockToControl(x, y, touchDownBlock);
 		}else{
 			int cx = mainBoard.getX(x);
 			int cy = mainBoard.getY(y);
 			Block b = mainBoard.blockAt(cx, cy);
-			if(b == null){
-				touchDownType = TouchDownType.EMPTY;
-			}else if(controlPanel.getClass() == ModifyPanel.class){
-				touchDownType = TouchDownType.EMPTY;
+			if(b != null){
+				if(touchDownType == TouchDownType.CONTROL)controlPanel.touchUpFromControlToBlock(x, y, b);
+				else if(touchDownType == TouchDownType.EMPTY)controlPanel.touchUpFromEmptyToBlock(x, y, b);
+				else if(touchDownType == TouchDownType.BLOCK)controlPanel.touchUpFromBlockToBlock(x, y, touchDownBlock, b);
 			}else{
-				touchDownType = TouchDownType.BLOCK;
-				touchDownBlock = b;
+				if(mainBoard.inBoard(cx, cy)){
+					if(touchDownType == TouchDownType.CONTROL)controlPanel.touchUpFromControlToEmpty(x, y, cx, cy);
+					else if(touchDownType == TouchDownType.EMPTY)controlPanel.touchUpFromEmptyToEmpty(x, y, cx, cy);
+					else if(touchDownType == TouchDownType.BLOCK)controlPanel.touchUpFromBlockToEmpty(x, y, touchDownBlock, cx, cy);
+				}else{
+					if(touchDownType == TouchDownType.CONTROL)controlPanel.touchUpFromControlToOutside(x, y);
+					else if(touchDownType == TouchDownType.EMPTY)controlPanel.touchUpFromEmptyToOutside(x, y);
+					else if(touchDownType == TouchDownType.BLOCK)controlPanel.touchUpFromBlockToOutside(x, y, touchDownBlock);
+				}
 			}
 		}
 	}
 	
 	public void tick(){
-		if(touchDownType == TouchDownType.BLOCK){
-			if(touchDownBlock != null){
-				if(touchDownBlock.holding){
-					float vx = 0f;
-					float vy = 0f;
-					if(movingLeft)
-						vx -= EDGEMOVINGSPEED;
-					if(movingRight)
-						vx += EDGEMOVINGSPEED;
-					if(movingUp)
-						vy += EDGEMOVINGSPEED;
-					if(movingDown)
-						vy -= EDGEMOVINGSPEED;
-					mainBoard.panMoveBy(vx / mainBoard.zoom, vy / mainBoard.zoom);
-				}
+		if(touchDownBlock != null){
+			if(touchDownBlock.holding){
+				float vx = 0f;
+				float vy = 0f;
+				if(movingLeft)
+					vx -= EDGEMOVINGSPEED;
+				if(movingRight)
+					vx += EDGEMOVINGSPEED;
+				if(movingUp)
+					vy += EDGEMOVINGSPEED;
+				if(movingDown)
+					vy -= EDGEMOVINGSPEED;
+				mainBoard.panMoveBy(vx / mainBoard.zoom, vy / mainBoard.zoom);
 			}
 		}
 	}
@@ -110,61 +135,44 @@ public class EditBoard extends Board {
 		currentX = x;
 		currentY = y;
 		if(touchDownType == TouchDownType.EMPTY){
-			mainBoard.panMove(mainBoard.centerX - deltaX / mainBoard.zoom, mainBoard.centerY - deltaY / mainBoard.zoom);
+			controlPanel.panEmpty(x, y, deltaX, deltaY);
 		}else if(touchDownType == TouchDownType.BLOCK){
-			if(!touchDownBlock.holding){
-				borderMoveEnable = true;
-				hasOrigin = true;
-				originX = touchDownBlock.x;
-				originY = touchDownBlock.y;
-				touchDownBlock.pick();
-			}else{
-				movingLeft = (x <= MOVINGZONE);
-				movingRight = (x >= width - MOVINGZONE);
-				movingUp = (y >= height - MOVINGZONE);
-				movingDown = (y <= MOVINGZONE + ControlPanel.PANELHEIGHT);
-				if(!borderMoveEnable){
-					if(!(movingLeft || movingRight || movingUp || movingDown)){
-						borderMoveEnable = true;
-					}else{
-						movingLeft = false;
-						movingRight = false;
-						movingUp = false;
-						movingDown = false;
-					}
-				}
-			}
+			controlPanel.panBlock(x, y, deltaX, deltaY, touchDownBlock);
 		}else if(touchDownType == TouchDownType.CONTROL){
-			controlPanel.pan(x, y, deltaX, deltaY);
+			controlPanel.panControl(x, y, deltaX, deltaY);
+		}
+	}
+	
+	public void checkBoardMove(float x, float y){
+		movingLeft = (x <= MOVINGZONE);
+		movingRight = (x >= width - MOVINGZONE);
+		movingUp = (y >= height - MOVINGZONE);
+		movingDown = (y <= MOVINGZONE + ControlPanel.PANELHEIGHT);
+		if(!borderMoveEnable){
+			if(!(movingLeft || movingRight || movingUp || movingDown)){
+				borderMoveEnable = true;
+			}else{
+				movingLeft = false;
+				movingRight = false;
+				movingUp = false;
+				movingDown = false;
+			}
 		}
 	}
 	
 	public void zoom(float initialDistance, float distance){
-		mainBoard.zoom(initialDistance, distance);
+		controlPanel.zoom(initialDistance, distance);
 	}
-	
-	public void touchUp(float x, float y) {
-		if(touchDownType == TouchDownType.BLOCK){
-			if(touchDownBlock.holding){
-				int cx = mainBoard.getX(x);
-				int cy = mainBoard.getY(y);
-				if(mainBoard.inBoard(cx, cy) && mainBoard.blockAt(cx, cy) == null){
-					touchDownBlock.put(cx, cy);
-				}else{
-					if(hasOrigin){
-						touchDownBlock.put(originX, originY);
-					}else{
-						touchDownBlock = null;
-						mainBoard.remove(touchDownBlock);
-					}
-				}
-			}
-		}else if(touchDownType == TouchDownType.CONTROL){
-			controlPanel.touchUp(x, y);
-		}
-	}
-	
+
 	public void longPressed(float x, float y){
+		if(touchDownType == TouchDownType.BLOCK){
+			controlPanel.longPressedBlock(x, y, touchDownBlock);
+		}else if(touchDownType == TouchDownType.EMPTY){
+			controlPanel.longPressedEmpty(x, y);
+		}else if(touchDownType == TouchDownType.CONTROL){
+			controlPanel.longPressedControl(x, y);
+		}
+		/*
 		if(touchDownType == TouchDownType.BLOCK){
 			Tool.vibrate();
 			mainBoard.selectBlock(touchDownBlock.x, touchDownBlock.y);
@@ -177,20 +185,24 @@ public class EditBoard extends Board {
 		}else if(touchDownType == TouchDownType.CONTROL){
 			controlPanel.longPressed(x, y);
 		}
+		*/
 	}
 	
 	public void backPressed(){
-		mainBoard.unselectBlock();
-		if(controlPanel.getClass().equals(NormalPanel.class)){
-			super.backPressed();
-		}else{
-			setPanel(new NormalPanel());
-		}
+		controlPanel.backPressed();
 	}
 	
 	public void tapped(float x, float y){
 		if(touchDownType == TouchDownType.CONTROL){
-			controlPanel.tapped(x, y);
+			controlPanel.tappedControl(x, y);
+		}else if(touchDownType == TouchDownType.EMPTY){
+			int cx = mainBoard.getX(x);
+			int cy = mainBoard.getY(y);
+			if(mainBoard.inBoard(cx, cy)){
+				controlPanel.tappedEmpty(x, y, cx, cy);
+			}
+		}else if(touchDownType == TouchDownType.BLOCK){
+			controlPanel.tappedBlock(x, y, touchDownBlock);
 		}
 	}
 	
