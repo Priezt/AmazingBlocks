@@ -13,6 +13,7 @@ public class Block {
 	public static float ARROWRADIUS = 30f;
 	public static Texture arrow;
 	
+	public boolean rotatable = true;
 	public boolean hasPosition = false;
 	public int x;
 	public int y;
@@ -64,6 +65,7 @@ public class Block {
 	}
 	
 	public void rotate(boolean clockwise){
+		if(!rotatable)return;
 		Direction oldDirection = direction;
 		if(clockwise){
 			if(direction == Direction.Up)direction = Direction.Right;
@@ -104,6 +106,7 @@ public class Block {
 			container.blockHash.remove(container.xyToHashKey(oldX, oldY));
 		}
 		holding = true;
+		Tool.log("pick: " + this.name() + "(" + oldX + "," + oldY + ")");
 	}
 	
 	public void put(int newX, int newY){
@@ -112,6 +115,7 @@ public class Block {
 		y = newY;
 		holding = false;
 		hasPosition = true;
+		Tool.log("put: " + this.name() + "(" + x + "," + y + ")");
 	}
 	
 	public void tapped(){

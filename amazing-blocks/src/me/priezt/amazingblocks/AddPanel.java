@@ -31,7 +31,11 @@ public class AddPanel extends ControlPanel {
 			"Echo",
 			"Counter",
 			"Ring",
-			"Vibrator"
+			"Vibrator",
+			"EnvUpIn",
+			"EnvDownIn",
+			"EnvLeftIn",
+			"EnvRightIn"
 		};
 		blocks = new ArrayList<Block>();
 		for(String bn : blockNames){
