@@ -42,6 +42,11 @@ public class AmazingBlocks implements ApplicationListener{
 	
 	public Board board;
 	
+	public AmazingBlocks(ActionResolver _ar){
+		super();
+		Tool.portal = _ar;
+	}
+	
 	@Override
 	public void create() {
 		Tool.init(this);
@@ -53,6 +58,7 @@ public class AmazingBlocks implements ApplicationListener{
 		screenHeight = h;
 		MainBoard mainBoard = new MainBoard(w, h);
 		mainBoard.addBlock(new HelloWorld(), 0, 0);
+		mainBoard.addBlock(new FileTouch(), 1, 0);
 		board = mainBoard;
 		
 		camera = new OrthographicCamera(1, h/w);

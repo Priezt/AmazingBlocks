@@ -24,6 +24,7 @@ public class Tool {
 	public static BitmapFont fontBVSM100;
 	public static AmazingBlocks root;
 	public static HashMap<String, Texture> textureCache = new HashMap<String, Texture>();
+	public static ActionResolver portal;
 
 	public static void init(AmazingBlocks _root){
 		root = _root;
@@ -109,5 +110,9 @@ public class Tool {
 	
 	public static void vibrate(){
 		Gdx.input.vibrate(30);
+	}
+	
+	public static void toast(String str){
+		
 	}
 }
